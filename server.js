@@ -92,7 +92,9 @@ function rewriteCss(css, baseUrl) {
 
 // ── Proxy fetch ────────────────────────────────────────────────────────────
 
-function fetchRemote(targetUrl, reqHeaders, callback) {
+function fetchRemote(targetUrl, reqHeaders, callback, redirectCount = 0) {
+  if (redirectCount > 5) return callback({ status: 508, body: 'Too many redirects' });
+
   let parsedUrl;
   try {
     parsedUrl = new url.URL(targetUrl);
@@ -104,7 +106,7 @@ function fetchRemote(targetUrl, reqHeaders, callback) {
   const options = {
     hostname: parsedUrl.hostname,
     port: parsedUrl.port || (parsedUrl.protocol === 'https:' ? 443 : 80),
-    path: parsedUrl.pathname + parsedUrl.search,
+    path: parsedUrl.pathname + (parsedUrl.search || ''),
     method: 'GET',
     headers: {
       'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120.0.0.0 Safari/537.36',
@@ -116,35 +118,48 @@ function fetchRemote(targetUrl, reqHeaders, callback) {
     timeout: 15000,
   };
 
+  let done = false;
+  function once(err, result) {
+    if (done) return;
+    done = true;
+    callback(err, result);
+  }
+
   const req = proto.request(options, (res) => {
     // Handle redirects
     if ([301, 302, 303, 307, 308].includes(res.statusCode) && res.headers.location) {
       const redirectUrl = resolveUrl(targetUrl, res.headers.location);
-      if (redirectUrl) return fetchRemote(redirectUrl, reqHeaders, callback);
+      res.resume(); // drain the response
+      if (redirectUrl) return fetchRemote(redirectUrl, reqHeaders, callback, redirectCount + 1);
+      return once({ status: 502, body: 'Bad redirect location' });
     }
 
     const chunks = [];
     const encoding = res.headers['content-encoding'];
 
     let stream = res;
-    if (encoding === 'gzip') stream = res.pipe(zlib.createGunzip());
-    else if (encoding === 'deflate') stream = res.pipe(zlib.createInflate());
-    else if (encoding === 'br') stream = res.pipe(zlib.createBrotliDecompress());
+    try {
+      if (encoding === 'gzip') stream = res.pipe(zlib.createGunzip());
+      else if (encoding === 'deflate') stream = res.pipe(zlib.createInflate());
+      else if (encoding === 'br') stream = res.pipe(zlib.createBrotliDecompress());
+    } catch (e) {
+      stream = res;
+    }
 
     stream.on('data', (chunk) => chunks.push(chunk));
     stream.on('end', () => {
-      callback(null, {
+      once(null, {
         status: res.statusCode,
         headers: res.headers,
         body: Buffer.concat(chunks),
         finalUrl: targetUrl,
       });
     });
-    stream.on('error', (e) => callback({ status: 502, body: 'Stream error: ' + e.message }));
+    stream.on('error', (e) => once({ status: 502, body: 'Stream error: ' + e.message }));
   });
 
-  req.on('timeout', () => { req.destroy(); callback({ status: 504, body: 'Request timed out' }); });
-  req.on('error', (e) => callback({ status: 502, body: 'Fetch error: ' + e.message }));
+  req.on('timeout', () => { req.destroy(); once({ status: 504, body: 'Request timed out' }); });
+  req.on('error', (e) => once({ status: 502, body: 'Fetch error: ' + e.message }));
   req.end();
 }
 
