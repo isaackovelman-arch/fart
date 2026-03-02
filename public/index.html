@@ -159,15 +159,10 @@
       <button class="go-btn" onclick="launchProxy()">GO ↗</button>
     </div>
     <div class="options-row">
-      <label class="toggle-chip active" id="chip-newTab">
-        <input type="checkbox" checked> 🔗 Open in New Tab
-      </label>
       <label class="toggle-chip active" id="chip-encrypt">
         <input type="checkbox" checked> 🔒 Encode URL
       </label>
-      <label class="toggle-chip" id="chip-frame">
-        <input type="checkbox"> 🪟 Inline Frame
-      </label>
+      <span class="toggle-chip active">🪟 Inline Frame</span>
     </div>
   </div>
 
@@ -297,19 +292,12 @@
     if (!target) { shakeInput(); return; }
 
     const proxyUrl = getProxyPath(target);
-    const useFrame = document.getElementById('chip-frame').classList.contains('active');
-
     animateBar();
-
-    if (useFrame) {
-      document.getElementById('frame-url').textContent = target;
-      document.getElementById('frame-external').href = proxyUrl;
-      document.getElementById('proxy-iframe').src = proxyUrl;
-      document.getElementById('frame-overlay').style.display = 'flex';
-      document.body.style.overflow = 'hidden';
-    } else {
-      window.open(proxyUrl, '_blank');
-    }
+    document.getElementById('frame-url').textContent = target;
+    document.getElementById('frame-external').href = proxyUrl;
+    document.getElementById('proxy-iframe').src = proxyUrl;
+    document.getElementById('frame-overlay').style.display = 'flex';
+    document.body.style.overflow = 'hidden';
   }
 
   function closeFrame() {
