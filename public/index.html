@@ -3,330 +3,205 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ProxyVault — Browse Free</title>
-<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Unbounded:wght@300;400;700;900&display=swap" rel="stylesheet">
+<title>New Tab</title>
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@300;400;500;600&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #080a0f;
-    --surface: #0d1117;
-    --card: #111722;
-    --border: #1e2a3a;
-    --accent: #00e5ff;
-    --accent2: #7b2fff;
-    --accent3: #ff2d6b;
-    --text: #e8edf5;
-    --muted: #5a6a7e;
+    --bg: #0e0f11;
+    --surface: rgba(255,255,255,0.04);
+    --surface2: rgba(255,255,255,0.07);
+    --border: rgba(255,255,255,0.08);
+    --text: #f0f0f0;
+    --muted: rgba(255,255,255,0.35);
+    --accent: #6c8fff;
+    --radius: 14px;
   }
   * { margin:0; padding:0; box-sizing:border-box; }
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'Space Mono', monospace;
-    min-height: 100vh;
-    overflow-x: hidden;
-  }
-  body::before {
-    content:'';
-    position:fixed; inset:0;
-    background-image:
-      linear-gradient(rgba(0,229,255,0.03) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(0,229,255,0.03) 1px, transparent 1px);
-    background-size:60px 60px;
-    animation:gridMove 20s linear infinite;
-    pointer-events:none; z-index:0;
-  }
-  @keyframes gridMove { to { transform:translateY(60px); } }
+  html, body { height:100%; background:var(--bg); color:var(--text); font-family:'Figtree',sans-serif; overflow:hidden; }
+  body::after { content:''; position:fixed; inset:0; background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E"); pointer-events:none; opacity:0.6; z-index:0; }
+  .blob { position:fixed; border-radius:50%; filter:blur(100px); pointer-events:none; z-index:0; opacity:0.18; }
+  .blob-1 { width:500px;height:500px; background:#3b5bff; top:-150px;left:-100px; animation:drift1 18s ease-in-out infinite; }
+  .blob-2 { width:400px;height:400px; background:#a855f7; bottom:-100px;right:-50px; animation:drift2 22s ease-in-out infinite; }
+  .blob-3 { width:300px;height:300px; background:#06b6d4; top:40%;left:60%; animation:drift1 15s ease-in-out infinite reverse; }
+  @keyframes drift1 { 0%,100%{transform:translate(0,0) scale(1)} 33%{transform:translate(30px,-40px) scale(1.05)} 66%{transform:translate(-20px,20px) scale(0.97)} }
+  @keyframes drift2 { 0%,100%{transform:translate(0,0) scale(1)} 50%{transform:translate(-40px,-30px) scale(1.08)} }
 
-  .glow-orb { position:fixed; border-radius:50%; filter:blur(120px); pointer-events:none; z-index:0; }
-  .glow-orb.one { width:600px;height:600px; background:radial-gradient(circle,rgba(0,229,255,0.08),transparent 70%); top:-200px;left:-200px; }
-  .glow-orb.two { width:500px;height:500px; background:radial-gradient(circle,rgba(123,47,255,0.08),transparent 70%); bottom:-100px;right:-100px; }
+  .page { position:relative; z-index:1; height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:0 24px; }
 
-  .container { position:relative; z-index:1; max-width:960px; margin:0 auto; padding:0 24px; }
+  .clock-wrap { text-align:center; margin-bottom:10px; animation:fadeUp 0.7s ease both; }
+  .clock { font-family:'DM Mono',monospace; font-size:clamp(4.5rem,12vw,8rem); font-weight:300; letter-spacing:-0.04em; color:var(--text); line-height:1; text-shadow:0 0 80px rgba(108,143,255,0.2); }
+  .date-display { font-size:0.8rem; font-weight:400; color:var(--muted); letter-spacing:0.12em; text-transform:uppercase; margin-top:10px; }
 
-  header { padding:32px 0 0; display:flex; align-items:center; justify-content:space-between; }
-  .logo { font-family:'Unbounded',sans-serif; font-weight:900; font-size:1.4rem; letter-spacing:-0.02em; text-decoration:none; display:flex; align-items:center; gap:10px; }
-  .logo-icon { width:36px;height:36px; background:linear-gradient(135deg,var(--accent),var(--accent2)); border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:18px; }
-  .logo span { background:linear-gradient(135deg,var(--accent),var(--accent2)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
-  nav { display:flex; gap:24px; align-items:center; }
-  nav a { color:var(--muted); text-decoration:none; font-size:0.75rem; letter-spacing:0.1em; text-transform:uppercase; transition:color 0.2s; }
-  nav a:hover { color:var(--accent); }
+  .search-wrap { width:100%; max-width:580px; margin-top:40px; animation:fadeUp 0.7s 0.1s ease both; }
+  .search-bar { display:flex; align-items:center; background:var(--surface2); border:1.5px solid var(--border); border-radius:50px; padding:6px 6px 6px 22px; gap:10px; backdrop-filter:blur(20px); transition:border-color 0.25s,box-shadow 0.25s,background 0.25s; }
+  .search-bar:focus-within { border-color:rgba(108,143,255,0.5); box-shadow:0 0 0 4px rgba(108,143,255,0.1),0 8px 32px rgba(0,0,0,0.3); background:rgba(255,255,255,0.06); }
+  .search-icon { color:var(--muted); flex-shrink:0; transition:color 0.2s; }
+  .search-bar:focus-within .search-icon { color:var(--accent); }
+  .search-input { flex:1; background:transparent; border:none; outline:none; color:var(--text); font-family:'Figtree',sans-serif; font-size:0.95rem; font-weight:400; padding:10px 0; caret-color:var(--accent); }
+  .search-input::placeholder { color:var(--muted); }
+  .go-btn { background:var(--accent); color:#fff; border:none; border-radius:40px; padding:10px 22px; font-family:'Figtree',sans-serif; font-size:0.82rem; font-weight:600; cursor:pointer; transition:opacity 0.2s,transform 0.15s,box-shadow 0.2s; white-space:nowrap; box-shadow:0 4px 16px rgba(108,143,255,0.3); }
+  .go-btn:hover { opacity:0.9; transform:scale(1.03); box-shadow:0 6px 20px rgba(108,143,255,0.45); }
+  .go-btn:active { transform:scale(0.97); }
 
-  .hero { padding:80px 0 60px; text-align:center; }
-  .status-badge { display:inline-flex; align-items:center; gap:8px; background:rgba(0,229,255,0.08); border:1px solid rgba(0,229,255,0.2); border-radius:100px; padding:6px 16px; font-size:0.7rem; letter-spacing:0.12em; text-transform:uppercase; color:var(--accent); margin-bottom:32px; animation:fadeDown 0.6s ease both; }
-  .status-dot { width:7px;height:7px; border-radius:50%; background:var(--accent); animation:blink 2s ease-in-out infinite; }
-  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
-  h1 { font-family:'Unbounded',sans-serif; font-size:clamp(2.2rem,6vw,4.2rem); font-weight:900; line-height:1.05; letter-spacing:-0.03em; margin-bottom:20px; animation:fadeDown 0.6s 0.1s ease both; }
-  h1 .line2 { display:block; background:linear-gradient(90deg,var(--accent),var(--accent2),var(--accent3)); background-size:200% auto; -webkit-background-clip:text; -webkit-text-fill-color:transparent; animation:fadeDown 0.6s 0.1s ease both,gradientShift 4s linear infinite; }
-  @keyframes gradientShift { to { background-position:200% center; } }
-  .subtitle { color:var(--muted); font-size:0.85rem; line-height:1.7; max-width:500px; margin:0 auto 48px; animation:fadeDown 0.6s 0.2s ease both; }
-  @keyframes fadeDown { from{opacity:0;transform:translateY(-16px)} to{opacity:1;transform:translateY(0)} }
-  @keyframes fadeUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+  .shortcuts-wrap { margin-top:40px; width:100%; max-width:580px; animation:fadeUp 0.7s 0.2s ease both; }
+  .shortcuts-label { font-size:0.65rem; letter-spacing:0.15em; text-transform:uppercase; color:var(--muted); text-align:center; margin-bottom:14px; }
+  .shortcuts { display:flex; justify-content:center; gap:12px; flex-wrap:wrap; }
+  .shortcut { display:flex; flex-direction:column; align-items:center; gap:7px; cursor:pointer; padding:12px 10px; border-radius:14px; border:1px solid transparent; transition:all 0.2s; min-width:68px; user-select:none; }
+  .shortcut:hover { background:var(--surface2); border-color:var(--border); transform:translateY(-3px); }
+  .shortcut-icon { width:42px;height:42px; border-radius:12px; background:var(--surface2); border:1px solid var(--border); display:flex; align-items:center; justify-content:center; font-size:20px; backdrop-filter:blur(10px); transition:border-color 0.2s; }
+  .shortcut:hover .shortcut-icon { border-color:rgba(108,143,255,0.3); }
+  .shortcut-label { font-size:0.68rem; color:var(--muted); font-weight:500; transition:color 0.2s; }
+  .shortcut:hover .shortcut-label { color:var(--text); }
 
-  .proxy-card { background:var(--card); border:1px solid var(--border); border-radius:20px; padding:32px; margin-bottom:16px; box-shadow:0 0 40px rgba(0,229,255,0.12); animation:fadeUp 0.6s 0.3s ease both; transition:border-color 0.3s; }
-  .proxy-card:hover { border-color:rgba(0,229,255,0.25); }
+  .offline-bar { display:none; position:fixed; bottom:24px; left:50%; transform:translateX(-50%); background:rgba(239,68,68,0.15); border:1px solid rgba(239,68,68,0.3); backdrop-filter:blur(20px); color:#fca5a5; font-size:0.75rem; font-weight:500; padding:10px 20px; border-radius:50px; letter-spacing:0.04em; z-index:50; animation:slideUp 0.3s ease; }
+  .offline-bar.show { display:flex; align-items:center; gap:8px; }
+  @keyframes slideUp { from{opacity:0;transform:translateX(-50%) translateY(10px)} to{opacity:1;transform:translateX(-50%) translateY(0)} }
 
-  .url-bar { display:flex; align-items:center; background:var(--surface); border:1.5px solid var(--border); border-radius:12px; padding:4px 4px 4px 16px; gap:8px; transition:border-color 0.3s,box-shadow 0.3s; margin-bottom:16px; }
-  .url-bar:focus-within { border-color:var(--accent); box-shadow:0 0 0 3px rgba(0,229,255,0.1); }
-  .url-prefix { color:var(--muted); font-size:0.75rem; white-space:nowrap; letter-spacing:0.05em; border-right:1px solid var(--border); padding-right:12px; margin-right:4px; }
-  .url-input { flex:1; background:transparent; border:none; outline:none; color:var(--text); font-family:'Space Mono',monospace; font-size:0.85rem; padding:12px 0; caret-color:var(--accent); }
-  .url-input::placeholder { color:var(--muted); }
-  .go-btn { background:linear-gradient(135deg,var(--accent),var(--accent2)); color:#000; font-family:'Unbounded',sans-serif; font-weight:700; font-size:0.7rem; letter-spacing:0.05em; border:none; border-radius:9px; padding:12px 24px; cursor:pointer; transition:opacity 0.2s,transform 0.1s; white-space:nowrap; text-transform:uppercase; }
-  .go-btn:hover { opacity:0.9; transform:scale(1.02); }
-  .go-btn:active { transform:scale(0.98); }
+  #overlay { display:none; position:fixed; inset:0; z-index:100; background:var(--bg); flex-direction:column; }
+  #overlay.open { display:flex; }
+  .overlay-bar { display:flex; align-items:center; gap:10px; padding:10px 16px; background:rgba(255,255,255,0.03); border-bottom:1px solid var(--border); backdrop-filter:blur(20px); flex-shrink:0; }
+  .back-btn { display:flex; align-items:center; gap:6px; background:var(--surface2); border:1px solid var(--border); color:var(--text); border-radius:8px; padding:7px 14px; font-family:'Figtree',sans-serif; font-size:0.78rem; font-weight:500; cursor:pointer; transition:all 0.2s; flex-shrink:0; }
+  .back-btn:hover { background:var(--surface); border-color:rgba(255,255,255,0.15); }
+  .overlay-url { flex:1; background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:7px 14px; font-size:0.75rem; font-family:'DM Mono',monospace; color:var(--muted); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .overlay-newtab { background:var(--surface2); border:1px solid var(--border); color:var(--muted); border-radius:8px; padding:7px 13px; font-size:0.75rem; font-family:'Figtree',sans-serif; font-weight:500; text-decoration:none; white-space:nowrap; transition:all 0.2s; flex-shrink:0; }
+  .overlay-newtab:hover { color:var(--text); border-color:rgba(255,255,255,0.15); }
+  #proxy-iframe { flex:1; border:none; width:100%; }
 
-  .options-row { display:flex; gap:12px; flex-wrap:wrap; }
-  .toggle-chip { display:flex; align-items:center; gap:8px; background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:8px 14px; font-size:0.72rem; letter-spacing:0.05em; color:var(--muted); cursor:pointer; transition:all 0.2s; user-select:none; }
-  .toggle-chip:hover { border-color:var(--accent); color:var(--text); }
-  .toggle-chip.active { border-color:var(--accent); background:rgba(0,229,255,0.08); color:var(--accent); }
-  .toggle-chip input { display:none; }
+  #loading-bar { position:fixed; top:0;left:0; height:2px; background:linear-gradient(90deg,var(--accent),#a78bfa); z-index:200; width:0%; transition:width 0.5s ease; border-radius:0 2px 2px 0; }
 
-  .section-title { font-size:0.65rem; letter-spacing:0.18em; text-transform:uppercase; color:var(--muted); margin-bottom:16px; }
-  .quicklinks { display:grid; grid-template-columns:repeat(auto-fill,minmax(140px,1fr)); gap:10px; animation:fadeUp 0.6s 0.4s ease both; margin-bottom:60px; }
-  .quicklink { display:flex; align-items:center; gap:10px; background:var(--card); border:1px solid var(--border); border-radius:12px; padding:12px 14px; text-decoration:none; color:var(--text); font-size:0.75rem; transition:all 0.2s; cursor:pointer; }
-  .quicklink:hover { border-color:rgba(0,229,255,0.3); background:rgba(0,229,255,0.04); transform:translateY(-2px); }
-  .quicklink-icon { width:30px;height:30px; border-radius:7px; display:flex; align-items:center; justify-content:center; font-size:15px; flex-shrink:0; }
+  .credits { position:fixed; bottom:20px; right:24px; font-size:0.62rem; color:rgba(255,255,255,0.12); letter-spacing:0.06em; z-index:1; animation:fadeUp 1s 0.5s ease both; }
 
-  .stats-bar { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-bottom:60px; animation:fadeUp 0.6s 0.5s ease both; }
-  .stat-card { background:var(--card); border:1px solid var(--border); border-radius:16px; padding:24px; text-align:center; }
-  .stat-num { font-family:'Unbounded',sans-serif; font-size:1.8rem; font-weight:900; background:linear-gradient(135deg,var(--accent),var(--accent2)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
-  .stat-label { font-size:0.65rem; letter-spacing:0.12em; text-transform:uppercase; color:var(--muted); margin-top:4px; }
-
-  .features { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:16px; margin-bottom:60px; animation:fadeUp 0.6s 0.6s ease both; }
-  .feature { background:var(--card); border:1px solid var(--border); border-radius:16px; padding:24px; transition:border-color 0.2s; }
-  .feature:hover { border-color:rgba(0,229,255,0.2); }
-  .feature-icon { font-size:1.8rem; margin-bottom:14px; }
-  .feature h3 { font-family:'Unbounded',sans-serif; font-size:0.8rem; font-weight:700; letter-spacing:-0.01em; margin-bottom:8px; }
-  .feature p { font-size:0.72rem; color:var(--muted); line-height:1.7; }
-
-  footer { border-top:1px solid var(--border); padding:32px 0; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px; }
-  footer p { font-size:0.68rem; color:var(--muted); }
-  .footer-links { display:flex; gap:20px; }
-  .footer-links a { font-size:0.68rem; color:var(--muted); text-decoration:none; transition:color 0.2s; }
-  .footer-links a:hover { color:var(--accent); }
-
-  .loading-bar { position:fixed; top:0; left:0; height:3px; background:linear-gradient(90deg,var(--accent),var(--accent2)); z-index:200; transition:width 0.3s; width:0%; }
-
-  @keyframes shake {
-    0%,100%{transform:translateX(0)}
-    20%{transform:translateX(-8px);border-color:#ff2d6b}
-    40%{transform:translateX(8px)}
-    60%{transform:translateX(-5px)}
-    80%{transform:translateX(5px)}
-  }
-
-  @media(max-width:600px){
-    .stats-bar{grid-template-columns:1fr}
-    nav{display:none}
-    h1{font-size:2rem}
-  }
+  @keyframes fadeUp { from{opacity:0;transform:translateY(18px)} to{opacity:1;transform:translateY(0)} }
+  @keyframes shake { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-6px)} 40%{transform:translateX(6px)} 60%{transform:translateX(-4px)} 80%{transform:translateX(4px)} }
 </style>
 </head>
 <body>
 
-<div class="glow-orb one"></div>
-<div class="glow-orb two"></div>
-<div id="loading-bar" class="loading-bar"></div>
+<div class="blob blob-1"></div>
+<div class="blob blob-2"></div>
+<div class="blob blob-3"></div>
+<div id="loading-bar"></div>
 
-<div class="container">
-  <header>
-    <a class="logo" href="/">
-      <div class="logo-icon">🔮</div>
-      <span>ProxyVault</span>
-    </a>
-    <nav>
-      <a href="/">Home</a>
-      <a href="#features">Features</a>
-      <a href="#about">About</a>
-    </nav>
-  </header>
-
-  <section class="hero">
-    <div class="status-badge">
-      <div class="status-dot"></div>
-      Server online
-    </div>
-    <h1>
-      Browse Without<br>
-      <span class="line2">Limits or Traces</span>
-    </h1>
-    <p class="subtitle">Access any website anonymously through our server-side proxy. Bypasses X-Frame-Options, CSP headers, and geo-restrictions — no installs required.</p>
-  </section>
-
-  <div class="proxy-card">
-    <div class="url-bar" id="url-bar">
-      <span class="url-prefix">URL</span>
-      <input type="text" class="url-input" id="url-input" placeholder="Enter a website, e.g. google.com or https://example.com" />
-      <button class="go-btn" onclick="launchProxy()">GO ↗</button>
-    </div>
-    <div class="options-row">
-      <label class="toggle-chip active" id="chip-encrypt">
-        <input type="checkbox" checked> 🔒 Encode URL
-      </label>
-      <span class="toggle-chip active">🪟 Inline Frame</span>
-    </div>
-  </div>
-
-  <div style="margin-bottom:40px; animation:fadeUp 0.6s 0.35s ease both;">
-    <div class="section-title">Quick Access</div>
-    <div class="quicklinks">
-      <div class="quicklink" onclick="proxyTo('https://google.com')">
-        <div class="quicklink-icon" style="background:#1a2332">🔍</div> Google
-      </div>
-      <div class="quicklink" onclick="proxyTo('https://youtube.com')">
-        <div class="quicklink-icon" style="background:#2a1a1a">▶️</div> YouTube
-      </div>
-      <div class="quicklink" onclick="proxyTo('https://reddit.com')">
-        <div class="quicklink-icon" style="background:#2a1e16">🟠</div> Reddit
-      </div>
-      <div class="quicklink" onclick="proxyTo('https://twitter.com')">
-        <div class="quicklink-icon" style="background:#1a2030">🐦</div> X / Twitter
-      </div>
-      <div class="quicklink" onclick="proxyTo('https://wikipedia.org')">
-        <div class="quicklink-icon" style="background:#1a1d2a">📖</div> Wikipedia
-      </div>
-      <div class="quicklink" onclick="proxyTo('https://discord.com')">
-        <div class="quicklink-icon" style="background:#1e1a2e">💬</div> Discord
-      </div>
-      <div class="quicklink" onclick="proxyTo('https://github.com')">
-        <div class="quicklink-icon" style="background:#1a1e1a">⚙️</div> GitHub
-      </div>
-      <div class="quicklink" onclick="proxyTo('https://twitch.tv')">
-        <div class="quicklink-icon" style="background:#1e1a2e">🎮</div> Twitch
-      </div>
-    </div>
-  </div>
-
-  <div class="stats-bar">
-    <div class="stat-card">
-      <div class="stat-num" id="req-counter">0</div>
-      <div class="stat-label">Requests Today</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-num">Base64</div>
-      <div class="stat-label">URL Encoding</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-num">0 logs</div>
-      <div class="stat-label">Data Retained</div>
-    </div>
-  </div>
-
-  <div class="features" id="features">
-    <div class="feature">
-      <div class="feature-icon">🛡️</div>
-      <h3>Bypasses All Headers</h3>
-      <p>Server strips X-Frame-Options, CSP, and CORS headers so any site loads cleanly through the proxy — no iframe blocking.</p>
-    </div>
-    <div class="feature">
-      <div class="feature-icon">🔄</div>
-      <h3>Full URL Rewriting</h3>
-      <p>Links, images, scripts, stylesheets, and fetch/XHR requests are all rewritten to route through the proxy server.</p>
-    </div>
-    <div class="feature">
-      <div class="feature-icon">🚀</div>
-      <h3>Zero-Dependency Node.js</h3>
-      <p>Pure Node.js with no npm packages needed. Just <code>node server.js</code> and you're running.</p>
-    </div>
-    <div class="feature">
-      <div class="feature-icon">🌍</div>
-      <h3>Bypass Restrictions</h3>
-      <p>Access geo-blocked or network-restricted websites from school, work, or anywhere with an internet connection.</p>
-    </div>
-  </div>
-
-  <footer id="about">
-    <p>© 2025 ProxyVault · For educational use only</p>
-    <div class="footer-links">
-      <a href="#">Privacy</a>
-      <a href="#">Terms</a>
-      <a href="#">GitHub</a>
-    </div>
-  </footer>
+<div class="offline-bar" id="offline-bar">
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="1" y1="1" x2="23" y2="23"/><path d="M16.72 11.06A10.94 10.94 0 0 1 19 12.55M5 12.55a10.94 10.94 0 0 1 5.17-2.39M10.71 5.05A16 16 0 0 1 22.56 9M1.42 9a15.91 15.91 0 0 1 4.7-2.88M8.53 16.11a6 6 0 0 1 6.95 0M12 20h.01"/></svg>
+  You're offline — cached pages still work
 </div>
 
-<!-- Inline frame overlay -->
-<div id="frame-overlay" style="display:none; position:fixed; inset:0; z-index:100; background:var(--bg); flex-direction:column;">
-  <div style="display:flex; align-items:center; gap:12px; padding:10px 16px; background:var(--surface); border-bottom:1px solid var(--border);">
-    <button onclick="closeFrame()" style="background:var(--card); border:1px solid var(--border); color:var(--text); border-radius:8px; padding:7px 14px; font-family:'Space Mono',monospace; font-size:0.72rem; cursor:pointer;">← Back</button>
-    <div id="frame-url" style="flex:1; background:var(--card); border:1px solid var(--border); border-radius:8px; padding:7px 14px; font-size:0.72rem; color:var(--muted); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;"></div>
-    <a id="frame-external" href="#" target="_blank" style="background:var(--card); border:1px solid var(--border); color:var(--muted); border-radius:8px; padding:7px 14px; font-size:0.72rem; text-decoration:none;">↗ Open Tab</a>
+<div id="overlay">
+  <div class="overlay-bar">
+    <button class="back-btn" onclick="closeProxy()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+      Home
+    </button>
+    <div class="overlay-url" id="overlay-url"></div>
+    <a class="overlay-newtab" id="overlay-newtab" href="#" target="_blank">↗ New Tab</a>
   </div>
-  <iframe id="proxy-iframe" src="" style="flex:1; border:none; width:100%;"></iframe>
+  <iframe id="proxy-iframe" src=""></iframe>
 </div>
+
+<div class="page">
+  <div class="clock-wrap">
+    <div class="clock" id="clock">00:00</div>
+    <div class="date-display" id="date-display"></div>
+  </div>
+
+  <div class="search-wrap">
+    <div class="search-bar" id="search-bar">
+      <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input class="search-input" id="url-input" type="text" placeholder="Search or enter a URL..." autocomplete="off" spellcheck="false"/>
+      <button class="go-btn" onclick="go()">Go</button>
+    </div>
+  </div>
+
+  <div class="shortcuts-wrap">
+    <div class="shortcuts-label">Quick Access</div>
+    <div class="shortcuts">
+      <div class="shortcut" onclick="proxyTo('https://google.com')"><div class="shortcut-icon">🔍</div><span class="shortcut-label">Google</span></div>
+      <div class="shortcut" onclick="proxyTo('https://youtube.com')"><div class="shortcut-icon">▶️</div><span class="shortcut-label">YouTube</span></div>
+      <div class="shortcut" onclick="proxyTo('https://reddit.com')"><div class="shortcut-icon">🟠</div><span class="shortcut-label">Reddit</span></div>
+      <div class="shortcut" onclick="proxyTo('https://twitter.com')"><div class="shortcut-icon">🐦</div><span class="shortcut-label">Twitter</span></div>
+      <div class="shortcut" onclick="proxyTo('https://discord.com')"><div class="shortcut-icon">💬</div><span class="shortcut-label">Discord</span></div>
+      <div class="shortcut" onclick="proxyTo('https://github.com')"><div class="shortcut-icon">⚙️</div><span class="shortcut-label">GitHub</span></div>
+      <div class="shortcut" onclick="proxyTo('https://twitch.tv')"><div class="shortcut-icon">🎮</div><span class="shortcut-label">Twitch</span></div>
+      <div class="shortcut" onclick="proxyTo('https://wikipedia.org')"><div class="shortcut-icon">📖</div><span class="shortcut-label">Wikipedia</span></div>
+    </div>
+  </div>
+</div>
+
+<div class="credits">ProxyVault</div>
 
 <script>
-  // Animate counter
-  let count = Math.floor(Math.random() * 50000) + 120000;
-  document.getElementById('req-counter').textContent = count.toLocaleString();
-  setInterval(() => {
-    count += Math.floor(Math.random() * 3) + 1;
-    document.getElementById('req-counter').textContent = count.toLocaleString();
-  }, 2000);
-
-  function toggleChip(el) { el.classList.toggle('active'); }
-
-  function encodeUrl(target) {
-    return btoa(target).replace(/\+/g,'-').replace(/\//g,'_').replace(/=/g,'');
+  function updateClock() {
+    const now = new Date();
+    const h = String(now.getHours()).padStart(2,'0');
+    const m = String(now.getMinutes()).padStart(2,'0');
+    document.getElementById('clock').textContent = h + ':' + m;
+    const days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+    const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+    document.getElementById('date-display').textContent = days[now.getDay()] + ', ' + months[now.getMonth()] + ' ' + now.getDate();
   }
+  updateClock();
+  setInterval(updateClock, 1000);
 
-  function normalizeUrl(raw) {
+  function encodeTarget(url) { return btoa(url).replace(/\+/g,'-').replace(/\//g,'_').replace(/=/g,''); }
+
+  function normalize(raw) {
     raw = raw.trim();
     if (!raw) return null;
+    if (!raw.includes('.') || raw.includes(' ')) return 'https://www.google.com/search?q=' + encodeURIComponent(raw);
     if (!/^https?:\/\//i.test(raw)) raw = 'https://' + raw;
     return raw;
   }
 
-  function getProxyPath(target) {
-    const encoded = encodeUrl(target);
-    return '/proxy/' + encoded;
-  }
-
-  function proxyTo(target) {
-    document.getElementById('url-input').value = target;
-    launchProxy();
-  }
-
-  function launchProxy() {
-    const raw = document.getElementById('url-input').value;
-    const target = normalizeUrl(raw);
-    if (!target) { shakeInput(); return; }
-
-    const proxyUrl = getProxyPath(target);
-    animateBar();
-    document.getElementById('frame-url').textContent = target;
-    document.getElementById('frame-external').href = proxyUrl;
-    document.getElementById('proxy-iframe').src = proxyUrl;
-    document.getElementById('frame-overlay').style.display = 'flex';
+  function openProxy(target) {
+    const path = '/proxy/' + encodeTarget(target);
+    document.getElementById('overlay-url').textContent = target;
+    document.getElementById('overlay-newtab').href = path;
+    document.getElementById('proxy-iframe').src = path;
+    document.getElementById('overlay').classList.add('open');
     document.body.style.overflow = 'hidden';
+    animateBar();
   }
 
-  function closeFrame() {
-    document.getElementById('frame-overlay').style.display = 'none';
+  function closeProxy() {
+    document.getElementById('overlay').classList.remove('open');
     document.getElementById('proxy-iframe').src = '';
     document.body.style.overflow = '';
+  }
+
+  function go() {
+    const target = normalize(document.getElementById('url-input').value);
+    if (!target) { shake(); return; }
+    openProxy(target);
+  }
+
+  function proxyTo(url) {
+    document.getElementById('url-input').value = url;
+    openProxy(url);
   }
 
   function animateBar() {
     const bar = document.getElementById('loading-bar');
     bar.style.transition = 'width 0.8s ease';
-    bar.style.width = '80%';
+    bar.style.width = '75%';
     setTimeout(() => { bar.style.width = '100%'; }, 800);
     setTimeout(() => { bar.style.transition = 'none'; bar.style.width = '0%'; }, 1400);
   }
 
-  function shakeInput() {
-    const bar = document.getElementById('url-bar');
+  function shake() {
+    const bar = document.getElementById('search-bar');
     bar.style.animation = 'shake 0.4s ease';
     setTimeout(() => bar.style.animation = '', 400);
   }
 
-  document.getElementById('url-input').addEventListener('keydown', e => {
-    if (e.key === 'Enter') launchProxy();
-  });
+  document.getElementById('url-input').addEventListener('keydown', e => { if (e.key === 'Enter') go(); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeProxy(); });
 
-  document.addEventListener('keydown', e => {
-    if (e.key === 'Escape') closeFrame();
-  });
+  window.addEventListener('online', () => document.getElementById('offline-bar').classList.remove('show'));
+  window.addEventListener('offline', () => document.getElementById('offline-bar').classList.add('show'));
+  if (!navigator.onLine) document.getElementById('offline-bar').classList.add('show');
+
+  if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(() => {});
 </script>
 </body>
 </html>
