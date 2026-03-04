@@ -182,6 +182,10 @@ const server = http.createServer((req, res) => {
     return serveFile(res, path.join(__dirname, 'public', 'index.html'), 'text/html; charset=utf-8');
   }
 
+  if (pathname === '/sw.js') {
+    return serveFile(res, path.join(__dirname, 'public', 'sw.js'), 'application/javascript');
+  }
+
   // ── Proxy route: /proxy/<base64url-encoded-target-url> ─────────────────
   if (pathname.startsWith('/proxy/')) {
     const encoded = pathname.slice('/proxy/'.length);
